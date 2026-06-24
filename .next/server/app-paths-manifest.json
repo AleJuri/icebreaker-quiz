@@ -1,0 +1,8 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/game/host/page": "app/game/host/page.js",
+  "/game/waiting/page": "app/game/waiting/page.js",
+  "/game/player/page": "app/game/player/page.js",
+  "/join/page": "app/join/page.js",
+  "/page": "app/page.js"
+}

@@ -1,70 +1,117 @@
-# Getting Started with Create React App
+# 🎮 Icebreaker Quiz
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Quiz multijugador en tiempo real para icebreakers empresariales.
 
-## Available Scripts
+## Stack
+- **Next.js 14** — frontend
+- **Supabase** — base de datos + realtime (gratis)
+- **Vercel** — deploy (gratis)
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## Setup paso a paso
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 1. Supabase (5 min)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. Entrá a https://supabase.com y creá una cuenta gratis
+2. Creá un nuevo proyecto
+3. Andá a **SQL Editor** y ejecutá todo el contenido de `lib/schema.sql`
+4. Andá a **Settings → API** y copiá:
+   - `Project URL`
+   - `anon public key`
 
-### `npm test`
+### 2. Variables de entorno
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Copiá `.env.example` como `.env.local`:
 
-### `npm run build`
+```bash
+cp .env.example .env.local
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Completá con tus datos de Supabase:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+NEXT_PUBLIC_SUPABASE_URL=https://XXXXXXXXXX.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 3. Función increment_answers en Supabase
 
-### `npm run eject`
+En el **SQL Editor** de Supabase ejecutá también esto:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```sql
+create or replace function increment_answers()
+returns void as $$
+begin
+  update game_state set answers_count = answers_count + 1 where id = 'game';
+end;
+$$ language plpgsql;
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 4. Correr local
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+npm install
+npm run dev
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Abrí http://localhost:3000
 
-## Learn More
+### 5. Deploy en Vercel (5 min)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. Subí el código a GitHub
+2. Entrá a https://vercel.com → New Project → importá el repo
+3. En **Environment Variables** agregá las dos variables de Supabase
+4. Deploy → listo
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## Cómo jugar
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+| URL | quién | qué hace |
+|-----|-------|----------|
+| `/` | host (proyector) | lobby con QR, botón comenzar |
+| `/join` | jugadores (celu) | ingresan nombre |
+| `/game/host` | host | pantalla del juego para proyector |
+| `/game/player` | jugadores | responden desde celu |
 
-### Analyzing the Bundle Size
+### Flujo completo
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+1. Host abre `/` en el proyector
+2. Jugadores escanean QR o entran a `/join`
+3. Cada uno ingresa su nombre → aparece en el lobby con ✓
+4. Host aprieta **Comenzar juego**
+5. Todos ven preguntas en su celu, responden
+6. Más rápido + correcto = más puntos (max 1000, min 100)
+7. Al terminar cada bloque se ve el ranking parcial
+8. Al final se muestra el podio 🏆
 
-### Making a Progressive Web App
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Personalizar preguntas
 
-### Advanced Configuration
+Editá `lib/questions.ts`. Cada pregunta tiene:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```ts
+{
+  id: 6,
+  block: 'empresa',         // messi | empresa | verdadero_falso
+  blockLabel: '🏢 Bloque Empresa',
+  type: 'multiple',         // multiple | truefalse
+  question: '¿En qué año fue fundada la empresa?',
+  options: ['2005', '2008', '2010', '2015'],
+  correct: 1,               // índice (0-based) de la opción correcta
+  timeLimit: 25,            // segundos para responder
+}
+```
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Resetear el juego
 
-### `npm run build` fails to minify
+En la página del lobby hay un botón **reset** que borra todos los jugadores y respuestas.
+También podés ejecutar en Supabase SQL Editor:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```sql
+select reset_game();
+```
