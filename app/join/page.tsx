@@ -37,13 +37,10 @@ export default function JoinPage() {
     setLoading(true)
     setError('')
 
-    // contar jugadores pa saber si es admin
-    const { count } = await supabase.from('players').select('*', { count: 'exact', head: true })
-    const isAdmin = count === 0
-
+    // el admin es el host (pantalla /), ningún jugador es admin
     const { data, error: err } = await supabase.from('players').insert({
       name: name.trim(),
-      is_admin: isAdmin,
+      is_admin: false,
       score: 0,
     }).select().single()
 
@@ -51,7 +48,7 @@ export default function JoinPage() {
 
     sessionStorage.setItem('playerId', data.id)
     sessionStorage.setItem('playerName', data.name)
-    sessionStorage.setItem('isAdmin', String(isAdmin))
+    sessionStorage.setItem('isAdmin', 'false')
 
     if (gameStatus === 'playing') {
       router.push('/game/player')

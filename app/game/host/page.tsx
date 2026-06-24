@@ -234,12 +234,23 @@ export default function HostPage() {
 
   const blockBg: Record<string, string> = {
     messi: '/messi-copa.jpg',
-    nerd: '/gandalf.webp',
+    nerd: '/gandalfvsharry.jpeg',
   }
   const bgImage = blockBg[currentQ.block]
 
   return (
     <div style={{ minHeight:'100vh', background:'#0f172a', color:'#fff', fontFamily:'sans-serif', padding:24, position:'relative', overflow:'hidden' }}>
+      {/* bloque empresa: video HMM de fondo */}
+      {currentQ.block === 'empresa' && (
+        <>
+          <video autoPlay loop muted playsInline style={{
+            position:'fixed', inset:0, width:'100%', height:'100%', objectFit:'cover', zIndex:0, opacity:0.55
+          }}>
+            <source src="/hmm-gotas.mp4" type="video/mp4" />
+          </video>
+          <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.5)', zIndex:0 }} />
+        </>
+      )}
       {/* imagen decorativa lateral del bloque (no tapa el contenido) */}
       {bgImage && (
         <>
@@ -350,13 +361,13 @@ export default function HostPage() {
           </div>
 
           <button onClick={nextQuestion} style={{
-            padding:'16px 32px', borderRadius:14, border:'none', cursor:'pointer',
+            padding:'10px 20px', borderRadius:12, border:'none', cursor:'pointer',
             background: answeredCount >= totalPlayers && totalPlayers > 0 ? '#22c55e' : '#3b82f6',
-            color:'#fff', fontSize:16, fontWeight:700,
-            minWidth:180, alignSelf:'stretch'
+            color:'#fff', fontSize:14, fontWeight:700,
+            minWidth:140, alignSelf:'flex-start'
           }}>
             {answeredCount >= totalPlayers && totalPlayers > 0 ? '✅ Siguiente' : '⏭️ Siguiente'}
-            <div style={{ fontSize:12, fontWeight:400, marginTop:4, opacity:0.8 }}>
+            <div style={{ fontSize:11, fontWeight:400, marginTop:2, opacity:0.8 }}>
               {answeredCount}/{totalPlayers} respondieron
             </div>
           </button>

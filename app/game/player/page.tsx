@@ -202,7 +202,7 @@ export default function PlayerPage() {
 
   const blockBg: Record<string, string> = {
     messi: '/messi-copa.jpg',
-    nerd: '/gandalf.webp',
+    nerd: '/gandalfvsharry.jpeg',
   }
   const bgImage = blockBg[currentQ.block]
   const bgStyle = bgImage
@@ -215,8 +215,19 @@ export default function PlayerPage() {
     : { background: '#0f172a' }
 
   return (
-    <div style={{ minHeight:'100vh', ...bgStyle, color:'#fff', fontFamily:'sans-serif', padding:16 }}>
-      <div style={{ maxWidth:480, margin:'0 auto' }}>
+    <div style={{ minHeight:'100vh', ...bgStyle, color:'#fff', fontFamily:'sans-serif', padding:16, position:'relative', overflow:'hidden' }}>
+      {/* bloque empresa: video HMM de fondo */}
+      {currentQ.block === 'empresa' && (
+        <>
+          <video autoPlay loop muted playsInline style={{
+            position:'fixed', inset:0, width:'100%', height:'100%', objectFit:'cover', zIndex:0, opacity:0.5
+          }}>
+            <source src="/hmm-gotas.mp4" type="video/mp4" />
+          </video>
+          <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.55)', zIndex:0 }} />
+        </>
+      )}
+      <div style={{ maxWidth:480, margin:'0 auto', position:'relative', zIndex:1 }}>
 
         {/* header */}
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>

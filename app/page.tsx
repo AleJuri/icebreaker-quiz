@@ -82,13 +82,13 @@ export default function LobbyPage() {
         autoPlay loop muted playsInline
         style={{
           position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          objectFit: 'cover', zIndex: 0, opacity: 0.35
+          objectFit: 'cover', zIndex: 0, opacity: 0.7
         }}
       >
         <source src="/hmm-gotas.mp4" type="video/mp4" />
       </video>
-      {/* overlay para legibilidad */}
-      <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', zIndex: 0 }} />
+      {/* overlay suave para legibilidad */}
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.35)', zIndex: 0 }} />
 
       <div style={{ maxWidth: 900, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
