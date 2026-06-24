@@ -76,8 +76,21 @@ export default function LobbyPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#fff', fontFamily: 'sans-serif', padding: '24px' }}>
-      <div style={{ maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#fff', fontFamily: 'sans-serif', padding: '24px', position: 'relative', overflow: 'hidden' }}>
+      {/* video de fondo animado */}
+      <video
+        autoPlay loop muted playsInline
+        style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          objectFit: 'cover', zIndex: 0, opacity: 0.35
+        }}
+      >
+        <source src="/hmm-gotas.mp4" type="video/mp4" />
+      </video>
+      {/* overlay para legibilidad */}
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', zIndex: 0 }} />
+
+      <div style={{ maxWidth: 900, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         {/* header */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>

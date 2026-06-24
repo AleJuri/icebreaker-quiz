@@ -200,8 +200,22 @@ export default function PlayerPage() {
   const optColors = ['#3b82f6','#8b5cf6','#f59e0b','#10b981']
   const optEmojis = ['A','B','C','D']
 
+  const blockBg: Record<string, string> = {
+    messi: '/messi-copa.jpg',
+    nerd: '/gandalf.webp',
+  }
+  const bgImage = blockBg[currentQ.block]
+  const bgStyle = bgImage
+    ? {
+        backgroundImage: `linear-gradient(rgba(15,23,42,0.82), rgba(15,23,42,0.92)), url(${bgImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+      }
+    : { background: '#0f172a' }
+
   return (
-    <div style={{ minHeight:'100vh', background:'#0f172a', color:'#fff', fontFamily:'sans-serif', padding:16 }}>
+    <div style={{ minHeight:'100vh', ...bgStyle, color:'#fff', fontFamily:'sans-serif', padding:16 }}>
       <div style={{ maxWidth:480, margin:'0 auto' }}>
 
         {/* header */}
