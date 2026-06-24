@@ -78,7 +78,7 @@ export const QUESTIONS: Question[] = [
     block: 'empresa',
     blockLabel: '🏢 Bloque Empresa',
     type: 'multiple',
-    question: '¿Cuántas personas conforman HMM acutalmente?',
+    question: '¿Cuántas personas trabajan actualmente en HMM?',
     options: ['33', '51', '37', '42'],
     correct: 2,
     timeLimit: 20,
