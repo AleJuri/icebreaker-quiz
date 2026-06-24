@@ -1,13 +1,16 @@
 'use client'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
 import { useRouter } from 'next/navigation'
+
+const MIN_PLAYERS = 1 // mínimo de jugadores para poder comenzar
 
 export default function LobbyPage() {
   const [players, setPlayers] = useState<any[]>([])
   const [gameStatus, setGameStatus] = useState('lobby')
   const [gameUrl, setGameUrl] = useState('')
+  const [copied, setCopied] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -49,8 +52,15 @@ export default function LobbyPage() {
     }
   }, [])
 
+  const copyLink = () => {
+    navigator.clipboard.writeText(gameUrl).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
   const startGame = async () => {
-    if (players.length < 2) { alert('necesitás al menos 2 jugadores'); return }
+    if (players.length < MIN_PLAYERS) { alert(`necesitás al menos ${MIN_PLAYERS} jugador(es)`); return }
     await supabase.from('game_state').update({
       status: 'playing',
       current_question: 1,
@@ -76,7 +86,7 @@ export default function LobbyPage() {
           <p style={{ color: '#94a3b8' }}>Escaneá el QR o entrá al link para unirte</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
+        <div className="lobby-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
 
           {/* QR */}
           <div style={{ background: '#1e293b', borderRadius: 16, padding: 24, textAlign: 'center' }}>
@@ -86,7 +96,17 @@ export default function LobbyPage() {
                 <QRCodeSVG value={gameUrl} size={180} />
               </div>
             )}
-            <div style={{ fontSize: 13, color: '#64748b', wordBreak: 'break-all' }}>{gameUrl}</div>
+            <div style={{ fontSize: 13, color: '#cbd5e1', wordBreak: 'break-all', marginBottom: 12 }}>{gameUrl || 'cargando link...'}</div>
+            <button
+              onClick={copyLink}
+              style={{
+                padding: '10px 16px', borderRadius: 10, border: '1px solid #475569',
+                background: copied ? '#22c55e' : '#0f172a', color: '#fff', fontSize: 13,
+                fontWeight: 600, cursor: 'pointer', width: '100%'
+              }}
+            >
+              {copied ? '✓ copiado' : '📋 copiar link'}
+            </button>
           </div>
 
           {/* jugadores */}
@@ -133,15 +153,16 @@ export default function LobbyPage() {
         <div style={{ display: 'flex', gap: 12 }}>
           <button
             onClick={startGame}
-            disabled={players.length < 2 || gameStatus !== 'lobby'}
+            disabled={players.length < MIN_PLAYERS || gameStatus !== 'lobby'}
             style={{
-              flex: 1, padding: '16px', borderRadius: 12, border: 'none', cursor: 'pointer',
-              background: players.length >= 2 ? '#22c55e' : '#374151',
+              flex: 1, padding: '16px', borderRadius: 12, border: 'none',
+              cursor: players.length >= MIN_PLAYERS ? 'pointer' : 'not-allowed',
+              background: players.length >= MIN_PLAYERS ? '#22c55e' : '#374151',
               color: '#fff', fontSize: 16, fontWeight: 700,
-              opacity: players.length >= 2 ? 1 : 0.5
+              opacity: players.length >= MIN_PLAYERS ? 1 : 0.5
             }}
           >
-            {players.length < 2 ? 'esperando jugadores...' : `🚀 Comenzar juego (${players.length} jugadores)`}
+            {players.length < MIN_PLAYERS ? 'esperando jugadores...' : `🚀 Comenzar juego (${players.length} jugadores)`}
           </button>
           <button
             onClick={resetGame}
@@ -154,7 +175,10 @@ export default function LobbyPage() {
           </button>
         </div>
 
-        <style>{`@keyframes fadeIn { from { opacity:0; transform:translateY(-4px) } to { opacity:1; transform:translateY(0) } }`}</style>
+        <style>{`
+          @keyframes fadeIn { from { opacity:0; transform:translateY(-4px) } to { opacity:1; transform:translateY(0) } }
+          @media (max-width: 640px) { .lobby-grid { grid-template-columns: 1fr !important; } }
+        `}</style>
       </div>
     </div>
   )
