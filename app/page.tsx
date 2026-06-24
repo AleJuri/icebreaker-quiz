@@ -150,7 +150,7 @@ export default function LobbyPage() {
         </div>
 
         {/* zona inferior: botones con el video HMM de fondo */}
-        <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', paddingBottom: 200 }}>
+        <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', paddingBottom: 250 }}>
           {/* video de fondo, arranca acá (debajo del QR y jugadores) */}
           <video
             autoPlay loop muted playsInline
