@@ -77,7 +77,7 @@ export default function JoinPage() {
       <div style={{ width:'100%', maxWidth:400 }}>
         <div style={{ textAlign:'center', marginBottom:32 }}>
           <div style={{ fontSize:48, marginBottom:12 }}>🎮</div>
-          <h1 style={{ fontSize:28, fontWeight:700, marginBottom:8 }}>ICEBREAKER QUIZ</h1>
+          <h1 style={{ fontSize:28, fontWeight:700, marginBottom:8 }}>ICEBREAKER HMM</h1>
           <p style={{ color:'#94a3b8', fontSize:14 }}>ingresá tu nombre para unirte</p>
         </div>
 

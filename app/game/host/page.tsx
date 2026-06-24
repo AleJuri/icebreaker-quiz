@@ -34,9 +34,17 @@ export default function HostPage() {
       })
       .subscribe()
 
+    // realtime de puntajes: cualquier cambio en players refresca el ranking
+    const playersSub = supabase.channel('host-players')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => {
+        loadPlayers()
+      })
+      .subscribe()
+
     return () => {
       supabase.removeChannel(gameSub)
       supabase.removeChannel(answersSub)
+      supabase.removeChannel(playersSub)
       clearInterval(timerRef.current)
     }
   }, [])
@@ -103,6 +111,13 @@ export default function HostPage() {
     setAnswers([])
   }
 
+  const resetGame = async () => {
+    if (!confirm('¿Reiniciar el juego? Se borran jugadores, respuestas y puntajes.')) return
+    clearInterval(timerRef.current)
+    await supabase.rpc('reset_game')
+    router.push('/')
+  }
+
   const continueAfterBreak = async () => {
     if (!gameState) return
     const next = gameState.current_question + 1
@@ -142,10 +157,10 @@ export default function HostPage() {
               <div style={{ fontSize:28, fontWeight:800, color:'#f59e0b' }}>{p.score} pts</div>
             </div>
           ))}
-          <button onClick={() => router.push('/')} style={{
-            marginTop:24, padding:'14px 32px', borderRadius:12, border:'1px solid #475569',
-            background:'transparent', color:'#94a3b8', fontSize:16, cursor:'pointer'
-          }}>volver al inicio</button>
+          <button onClick={resetGame} style={{
+            marginTop:24, padding:'14px 32px', borderRadius:12, border:'none',
+            background:'#22c55e', color:'#fff', fontSize:16, fontWeight:700, cursor:'pointer'
+          }}>↺ Reiniciar y nueva partida</button>
         </div>
       </div>
     )
@@ -176,12 +191,18 @@ export default function HostPage() {
               </div>
             ))}
           </div>
-          <button onClick={continueAfterBreak} style={{
-            width:'100%', padding:18, borderRadius:14, border:'none', cursor:'pointer',
-            background:'#3b82f6', color:'#fff', fontSize:18, fontWeight:700
-          }}>
-            Continuar → {nextBlock?.label}
-          </button>
+          <div style={{ display:'flex', gap:12 }}>
+            <button onClick={continueAfterBreak} style={{
+              flex:1, padding:18, borderRadius:14, border:'none', cursor:'pointer',
+              background:'#3b82f6', color:'#fff', fontSize:18, fontWeight:700
+            }}>
+              Continuar → {nextBlock?.label}
+            </button>
+            <button onClick={resetGame} style={{
+              padding:'18px 24px', borderRadius:14, border:'1px solid #7f1d1d', cursor:'pointer',
+              background:'transparent', color:'#f87171', fontSize:15, fontWeight:600
+            }}>↺ reset</button>
+          </div>
         </div>
       </div>
     )
@@ -221,6 +242,10 @@ export default function HostPage() {
               <div style={{ fontSize:11, color:'#94a3b8' }}>tiempo</div>
               <div style={{ fontSize:20, fontWeight:700 }}>{Math.ceil(timeLeft)}s</div>
             </div>
+            <button onClick={resetGame} title="Reiniciar juego" style={{
+              background:'transparent', border:'1px solid #7f1d1d', color:'#f87171',
+              borderRadius:10, padding:'8px 14px', fontSize:13, cursor:'pointer', fontWeight:600
+            }}>↺ reset</button>
           </div>
         </div>
 
@@ -259,14 +284,28 @@ export default function HostPage() {
         {/* ranking lateral + botón next */}
         <div style={{ display:'flex', gap:16, alignItems:'flex-start' }}>
           <div style={{ flex:1, background:'#1e293b', borderRadius:14, padding:16 }}>
-            <div style={{ fontSize:12, color:'#94a3b8', marginBottom:10, textTransform:'uppercase', letterSpacing:'0.05em' }}>top jugadores</div>
-            {players.slice(0,5).map((p, i) => (
-              <div key={i} style={{ display:'flex', gap:8, alignItems:'center', marginBottom:8 }}>
-                <div style={{ fontSize:14, minWidth:24, color:'#64748b' }}>{i+1}.</div>
-                <div style={{ flex:1, fontSize:14 }}>{p.name}</div>
-                <div style={{ fontSize:14, fontWeight:600, color:'#f59e0b' }}>{p.score}</div>
-              </div>
-            ))}
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
+              <div style={{ fontSize:12, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'0.05em' }}>tabla de puntajes</div>
+              <div style={{ fontSize:11, color:'#22c55e' }}>● en vivo</div>
+            </div>
+            <div style={{ maxHeight:260, overflowY:'auto' }}>
+              {players.map((p, i) => (
+                <div key={p.id} style={{
+                  display:'flex', gap:10, alignItems:'center', padding:'8px 10px',
+                  borderRadius:8, marginBottom:4,
+                  background: i===0 ? '#92400e33' : i===1 ? '#37415133' : i===2 ? '#1c191733' : 'transparent',
+                }}>
+                  <div style={{ fontSize:15, minWidth:30, textAlign:'center', fontWeight:700, color:'#64748b' }}>
+                    {i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`}
+                  </div>
+                  <div style={{ flex:1, fontSize:15, fontWeight:500 }}>{p.name}</div>
+                  <div style={{ fontSize:16, fontWeight:700, color:'#f59e0b' }}>{p.score}</div>
+                </div>
+              ))}
+              {players.length === 0 && (
+                <div style={{ color:'#475569', fontSize:13, textAlign:'center', padding:16 }}>sin jugadores</div>
+              )}
+            </div>
           </div>
 
           <button onClick={nextQuestion} style={{

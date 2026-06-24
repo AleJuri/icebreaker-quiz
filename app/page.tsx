@@ -81,7 +81,7 @@ export default function LobbyPage() {
 
         {/* header */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontSize: 14, color: '#94a3b8', marginBottom: 8 }}>🎮 ICEBREAKER QUIZ</div>
+          <div style={{ fontSize: 14, color: '#94a3b8', marginBottom: 8 }}>🎮 ICEBREAKER HMM</div>
           <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>Sala de espera</h1>
           <p style={{ color: '#94a3b8' }}>Escaneá el QR o entrá al link para unirte</p>
         </div>

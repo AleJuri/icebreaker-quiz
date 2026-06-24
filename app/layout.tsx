@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Icebreaker Quiz',
+  title: 'Icebreaker HMM',
   description: 'Quiz interactivo para icebreaker empresarial',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
 }
