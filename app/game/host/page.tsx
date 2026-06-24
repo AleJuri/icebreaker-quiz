@@ -140,6 +140,45 @@ export default function HostPage() {
   const timerPct = currentQ ? (timeLeft / currentQ.timeLimit) * 100 : 0
   const correctCount = answers.filter(a => a.is_correct).length
 
+  // fondo según el bloque (reutilizado en pregunta y en corte de bloque)
+  const renderBlockBg = (blockKey?: string) => {
+    if (blockKey === 'empresa') return (
+      <>
+        <video autoPlay loop muted playsInline style={{
+          position:'fixed', inset:0, width:'100%', height:'100%', objectFit:'cover', zIndex:0, opacity:0.55
+        }}>
+          <source src="/hmm-gotas.mp4" type="video/mp4" />
+        </video>
+        <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.5)', zIndex:0 }} />
+      </>
+    )
+    if (blockKey === 'nerd') return (
+      <>
+        <img src="/gandalfvsharry.jpeg" alt="" style={{
+          position:'fixed', inset:0, width:'100%', height:'100%', objectFit:'cover', zIndex:0, pointerEvents:'none'
+        }} />
+        <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.55)', zIndex:0 }} />
+      </>
+    )
+    if (blockKey === 'messi') return (
+      <>
+        <img src="/messi-copa.jpg" alt="" style={{
+          position:'fixed', right:0, bottom:0, height:'90vh', maxWidth:'46vw',
+          objectFit:'contain', objectPosition:'right bottom', opacity:0.9, zIndex:0, pointerEvents:'none',
+          WebkitMaskImage:'linear-gradient(to left, #000 55%, transparent 100%)',
+          maskImage:'linear-gradient(to left, #000 55%, transparent 100%)',
+        }} />
+        <img src="/messi-copa.jpg" alt="" style={{
+          position:'fixed', left:0, top:0, height:'70vh', maxWidth:'34vw',
+          objectFit:'contain', objectPosition:'left top', opacity:0.18, zIndex:0, pointerEvents:'none', transform:'scaleX(-1)',
+          WebkitMaskImage:'linear-gradient(to right, #000 40%, transparent 100%)',
+          maskImage:'linear-gradient(to right, #000 40%, transparent 100%)',
+        }} />
+      </>
+    )
+    return null
+  }
+
   // ── FINISHED ─────────────────────────────────────────────────
   if (phase === 'finished') {
     return (
@@ -186,8 +225,10 @@ export default function HostPage() {
   if (phase === 'block_break') {
     const nextBlock = BLOCKS.find(b => b.range[0] === (gameState?.current_question || 0) + 1)
     return (
-      <div style={{ minHeight:'100vh', background:'#0f172a', color:'#fff', fontFamily:'sans-serif', padding:32 }}>
-        <div style={{ maxWidth:800, margin:'0 auto' }}>
+      <div style={{ minHeight:'100vh', background:'#0f172a', color:'#fff', fontFamily:'sans-serif', padding:32, position:'relative', overflow:'hidden' }}>
+        {/* fondo del próximo bloque */}
+        {renderBlockBg(nextBlock?.key)}
+        <div style={{ maxWidth:800, margin:'0 auto', position:'relative', zIndex:1 }}>
           <div style={{ textAlign:'center', marginBottom:32 }}>
             <div style={{ fontSize:48, marginBottom:8 }}>📊</div>
             <h2 style={{ fontSize:32, fontWeight:800 }}>Ranking parcial</h2>
@@ -232,51 +273,10 @@ export default function HostPage() {
 
   const optColors = ['#3b82f6','#8b5cf6','#f59e0b','#10b981']
 
-  const sideImg = currentQ.block === 'messi' ? '/messi-copa.jpg' : null
-  const fullImg = currentQ.block === 'nerd' ? '/gandalfvsharry.jpeg' : null
-
   return (
     <div style={{ minHeight:'100vh', background:'#0f172a', color:'#fff', fontFamily:'sans-serif', padding:24, position:'relative', overflow:'hidden' }}>
-      {/* bloque empresa: video HMM de fondo */}
-      {currentQ.block === 'empresa' && (
-        <>
-          <video autoPlay loop muted playsInline style={{
-            position:'fixed', inset:0, width:'100%', height:'100%', objectFit:'cover', zIndex:0, opacity:0.55
-          }}>
-            <source src="/hmm-gotas.mp4" type="video/mp4" />
-          </video>
-          <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.5)', zIndex:0 }} />
-        </>
-      )}
-      {/* bloque nerd: imagen a pantalla completa de fondo */}
-      {fullImg && (
-        <>
-          <img src={fullImg} alt="" style={{
-            position:'fixed', inset:0, width:'100%', height:'100%', objectFit:'cover',
-            zIndex:0, pointerEvents:'none'
-          }} />
-          <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.55)', zIndex:0 }} />
-        </>
-      )}
-      {/* bloque messi: imagen decorativa lateral (no tapa el contenido) */}
-      {sideImg && (
-        <>
-          <img src={sideImg} alt="" style={{
-            position:'fixed', right:0, bottom:0, height:'90vh', maxWidth:'46vw',
-            objectFit:'contain', objectPosition:'right bottom', opacity:0.9,
-            zIndex:0, pointerEvents:'none',
-            WebkitMaskImage:'linear-gradient(to left, #000 55%, transparent 100%)',
-            maskImage:'linear-gradient(to left, #000 55%, transparent 100%)',
-          }} />
-          <img src={sideImg} alt="" style={{
-            position:'fixed', left:0, top:0, height:'70vh', maxWidth:'34vw',
-            objectFit:'contain', objectPosition:'left top', opacity:0.18,
-            zIndex:0, pointerEvents:'none', transform:'scaleX(-1)',
-            WebkitMaskImage:'linear-gradient(to right, #000 40%, transparent 100%)',
-            maskImage:'linear-gradient(to right, #000 40%, transparent 100%)',
-          }} />
-        </>
-      )}
+      {/* fondo según el bloque actual */}
+      {renderBlockBg(currentQ.block)}
       <div style={{ maxWidth:1000, margin:'0 auto', position:'relative', zIndex:1 }}>
 
         {/* top bar */}

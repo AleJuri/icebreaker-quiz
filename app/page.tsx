@@ -149,40 +149,42 @@ export default function LobbyPage() {
           </div>
         </div>
 
-        {/* botones admin */}
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button
-            onClick={startGame}
-            disabled={players.length < MIN_PLAYERS || gameStatus !== 'lobby'}
-            style={{
-              flex: 1, padding: '16px', borderRadius: 12, border: 'none',
-              cursor: players.length >= MIN_PLAYERS ? 'pointer' : 'not-allowed',
-              background: players.length >= MIN_PLAYERS ? '#22c55e' : '#374151',
-              color: '#fff', fontSize: 16, fontWeight: 700,
-              opacity: players.length >= MIN_PLAYERS ? 1 : 0.5
-            }}
-          >
-            {players.length < MIN_PLAYERS ? 'esperando jugadores...' : `🚀 Comenzar juego (${players.length} jugadores)`}
-          </button>
-          <button
-            onClick={resetGame}
-            style={{
-              padding: '16px 24px', borderRadius: 12, border: '1px solid #475569',
-              background: 'transparent', color: '#94a3b8', fontSize: 14, cursor: 'pointer'
-            }}
-          >
-            reset
-          </button>
-        </div>
-
-        {/* logo animado HMM, debajo de todo */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 40 }}>
+        {/* zona inferior: botones con el video HMM de fondo */}
+        <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', paddingBottom: 200 }}>
+          {/* video de fondo, arranca acá (debajo del QR y jugadores) */}
           <video
             autoPlay loop muted playsInline
-            style={{ width: 320, maxWidth: '80%', borderRadius: 16 }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, opacity: 0.6 }}
           >
             <source src="/hmm-gotas.mp4" type="video/mp4" />
           </video>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.3)', zIndex: 0 }} />
+
+          {/* botones admin */}
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: 12 }}>
+            <button
+              onClick={startGame}
+              disabled={players.length < MIN_PLAYERS || gameStatus !== 'lobby'}
+              style={{
+                flex: 1, padding: '16px', borderRadius: 12, border: 'none',
+                cursor: players.length >= MIN_PLAYERS ? 'pointer' : 'not-allowed',
+                background: players.length >= MIN_PLAYERS ? '#22c55e' : '#374151',
+                color: '#fff', fontSize: 16, fontWeight: 700,
+                opacity: players.length >= MIN_PLAYERS ? 1 : 0.5
+              }}
+            >
+              {players.length < MIN_PLAYERS ? 'esperando jugadores...' : `🚀 Comenzar juego (${players.length} jugadores)`}
+            </button>
+            <button
+              onClick={resetGame}
+              style={{
+                padding: '16px 24px', borderRadius: 12, border: '1px solid #475569',
+                background: 'rgba(15,23,42,0.6)', color: '#94a3b8', fontSize: 14, cursor: 'pointer'
+              }}
+            >
+              reset
+            </button>
+          </div>
         </div>
 
         <style>{`
