@@ -232,11 +232,8 @@ export default function HostPage() {
 
   const optColors = ['#3b82f6','#8b5cf6','#f59e0b','#10b981']
 
-  const blockBg: Record<string, string> = {
-    messi: '/messi-copa.jpg',
-    nerd: '/gandalfvsharry.jpeg',
-  }
-  const bgImage = blockBg[currentQ.block]
+  const sideImg = currentQ.block === 'messi' ? '/messi-copa.jpg' : null
+  const fullImg = currentQ.block === 'nerd' ? '/gandalfvsharry.jpeg' : null
 
   return (
     <div style={{ minHeight:'100vh', background:'#0f172a', color:'#fff', fontFamily:'sans-serif', padding:24, position:'relative', overflow:'hidden' }}>
@@ -251,17 +248,27 @@ export default function HostPage() {
           <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.5)', zIndex:0 }} />
         </>
       )}
-      {/* imagen decorativa lateral del bloque (no tapa el contenido) */}
-      {bgImage && (
+      {/* bloque nerd: imagen a pantalla completa de fondo */}
+      {fullImg && (
         <>
-          <img src={bgImage} alt="" style={{
+          <img src={fullImg} alt="" style={{
+            position:'fixed', inset:0, width:'100%', height:'100%', objectFit:'cover',
+            zIndex:0, pointerEvents:'none'
+          }} />
+          <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.55)', zIndex:0 }} />
+        </>
+      )}
+      {/* bloque messi: imagen decorativa lateral (no tapa el contenido) */}
+      {sideImg && (
+        <>
+          <img src={sideImg} alt="" style={{
             position:'fixed', right:0, bottom:0, height:'90vh', maxWidth:'46vw',
             objectFit:'contain', objectPosition:'right bottom', opacity:0.9,
             zIndex:0, pointerEvents:'none',
             WebkitMaskImage:'linear-gradient(to left, #000 55%, transparent 100%)',
             maskImage:'linear-gradient(to left, #000 55%, transparent 100%)',
           }} />
-          <img src={bgImage} alt="" style={{
+          <img src={sideImg} alt="" style={{
             position:'fixed', left:0, top:0, height:'70vh', maxWidth:'34vw',
             objectFit:'contain', objectPosition:'left top', opacity:0.18,
             zIndex:0, pointerEvents:'none', transform:'scaleX(-1)',

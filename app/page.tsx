@@ -77,19 +77,6 @@ export default function LobbyPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0f172a', color: '#fff', fontFamily: 'sans-serif', padding: '24px', position: 'relative', overflow: 'hidden' }}>
-      {/* video de fondo animado */}
-      <video
-        autoPlay loop muted playsInline
-        style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          objectFit: 'cover', zIndex: 0, opacity: 0.7
-        }}
-      >
-        <source src="/hmm-gotas.mp4" type="video/mp4" />
-      </video>
-      {/* overlay suave para legibilidad */}
-      <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.35)', zIndex: 0 }} />
-
       <div style={{ maxWidth: 900, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         {/* header */}
@@ -186,6 +173,16 @@ export default function LobbyPage() {
           >
             reset
           </button>
+        </div>
+
+        {/* logo animado HMM, debajo de todo */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 40 }}>
+          <video
+            autoPlay loop muted playsInline
+            style={{ width: 320, maxWidth: '80%', borderRadius: 16 }}
+          >
+            <source src="/hmm-gotas.mp4" type="video/mp4" />
+          </video>
         </div>
 
         <style>{`
