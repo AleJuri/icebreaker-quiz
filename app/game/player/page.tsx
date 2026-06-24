@@ -207,9 +207,9 @@ export default function PlayerPage() {
   const bgImage = blockBg[currentQ.block]
   const bgStyle = bgImage
     ? {
-        backgroundImage: `linear-gradient(rgba(15,23,42,0.82), rgba(15,23,42,0.92)), url(${bgImage})`,
+        backgroundImage: `linear-gradient(rgba(15,23,42,0.45), rgba(15,23,42,0.78)), url(${bgImage})`,
         backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundPosition: 'center top',
         backgroundAttachment: 'fixed',
       }
     : { background: '#0f172a' }

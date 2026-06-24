@@ -11,6 +11,7 @@ export default function HostPage() {
   const [timeLeft, setTimeLeft] = useState(0)
   const [phase, setPhase] = useState<'question'|'block_break'|'finished'>('question')
   const timerRef = useRef<any>(null)
+  const currentQuestionRef = useRef<number>(0) // pregunta actual, para usar dentro de los callbacks de realtime
   const router = useRouter()
 
   useEffect(() => {
@@ -18,10 +19,12 @@ export default function HostPage() {
     const gameSub = supabase.channel('host-game')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'game_state' }, (payload) => {
         setGameState(payload.new)
+        currentQuestionRef.current = payload.new.current_question
         if (payload.new.status === 'block_break') setPhase('block_break')
         if (payload.new.status === 'finished') setPhase('finished')
         if (payload.new.status === 'playing') {
           setPhase('question')
+          setAnswers([]) // nueva pregunta: reinicia el contador de respuestas
           startTimer(payload.new)
         }
       })
@@ -54,7 +57,7 @@ export default function HostPage() {
       supabase.from('game_state').select('*').eq('id', 'game').single(),
       supabase.from('players').select('*').order('score', { ascending: false }),
     ])
-    if (gs.data) { setGameState(gs.data); startTimer(gs.data) }
+    if (gs.data) { setGameState(gs.data); currentQuestionRef.current = gs.data.current_question; startTimer(gs.data) }
     if (ps.data) setPlayers(ps.data)
     loadAnswers()
   }
@@ -65,8 +68,9 @@ export default function HostPage() {
   }
 
   const loadAnswers = async () => {
-    if (!gameState) return
-    const { data } = await supabase.from('answers').select('*').eq('question_id', gameState.current_question)
+    const q = currentQuestionRef.current
+    if (!q) return
+    const { data } = await supabase.from('answers').select('*').eq('question_id', q)
     if (data) setAnswers(data)
   }
 
@@ -143,8 +147,9 @@ export default function HostPage() {
         <div style={{ maxWidth:700, width:'100%', textAlign:'center' }}>
           <div style={{ fontSize:80, marginBottom:16 }}>🏆</div>
           <h1 style={{ fontSize:40, fontWeight:800, marginBottom:32 }}>¡JUEGO TERMINADO!</h1>
+          {/* podio top 3 */}
           {players.slice(0,3).map((p, i) => (
-            <div key={i} style={{
+            <div key={p.id} style={{
               display:'flex', alignItems:'center', gap:16,
               background: i===0?'#92400e':i===1?'#374151':'#1c1917',
               borderRadius:16, padding:'16px 24px', marginBottom:12,
@@ -155,6 +160,17 @@ export default function HostPage() {
                 <div style={{ fontSize:22, fontWeight:700 }}>{p.name}</div>
               </div>
               <div style={{ fontSize:28, fontWeight:800, color:'#f59e0b' }}>{p.score} pts</div>
+            </div>
+          ))}
+          {/* resto de jugadores (4° en adelante) */}
+          {players.slice(3).map((p, i) => (
+            <div key={p.id} style={{
+              display:'flex', alignItems:'center', gap:16,
+              background:'#1e293b', borderRadius:12, padding:'10px 24px', marginBottom:6
+            }}>
+              <div style={{ fontSize:16, fontWeight:700, color:'#64748b', minWidth:32 }}>{i+4}°</div>
+              <div style={{ flex:1, textAlign:'left', fontSize:17, fontWeight:600 }}>{p.name}</div>
+              <div style={{ fontSize:18, fontWeight:700, color:'#f59e0b' }}>{p.score} pts</div>
             </div>
           ))}
           <button onClick={resetGame} style={{
@@ -221,18 +237,29 @@ export default function HostPage() {
     nerd: '/gandalf.webp',
   }
   const bgImage = blockBg[currentQ.block]
-  const bgStyle = bgImage
-    ? {
-        backgroundImage: `linear-gradient(rgba(15,23,42,0.82), rgba(15,23,42,0.92)), url(${bgImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
-      }
-    : { background: '#0f172a' }
 
   return (
-    <div style={{ minHeight:'100vh', ...bgStyle, color:'#fff', fontFamily:'sans-serif', padding:24 }}>
-      <div style={{ maxWidth:1000, margin:'0 auto' }}>
+    <div style={{ minHeight:'100vh', background:'#0f172a', color:'#fff', fontFamily:'sans-serif', padding:24, position:'relative', overflow:'hidden' }}>
+      {/* imagen decorativa lateral del bloque (no tapa el contenido) */}
+      {bgImage && (
+        <>
+          <img src={bgImage} alt="" style={{
+            position:'fixed', right:0, bottom:0, height:'90vh', maxWidth:'46vw',
+            objectFit:'contain', objectPosition:'right bottom', opacity:0.9,
+            zIndex:0, pointerEvents:'none',
+            WebkitMaskImage:'linear-gradient(to left, #000 55%, transparent 100%)',
+            maskImage:'linear-gradient(to left, #000 55%, transparent 100%)',
+          }} />
+          <img src={bgImage} alt="" style={{
+            position:'fixed', left:0, top:0, height:'70vh', maxWidth:'34vw',
+            objectFit:'contain', objectPosition:'left top', opacity:0.18,
+            zIndex:0, pointerEvents:'none', transform:'scaleX(-1)',
+            WebkitMaskImage:'linear-gradient(to right, #000 40%, transparent 100%)',
+            maskImage:'linear-gradient(to right, #000 40%, transparent 100%)',
+          }} />
+        </>
+      )}
+      <div style={{ maxWidth:1000, margin:'0 auto', position:'relative', zIndex:1 }}>
 
         {/* top bar */}
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
@@ -302,11 +329,11 @@ export default function HostPage() {
               <div style={{ fontSize:12, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'0.05em' }}>tabla de puntajes</div>
               <div style={{ fontSize:11, color:'#22c55e' }}>● en vivo</div>
             </div>
-            <div style={{ maxHeight:260, overflowY:'auto' }}>
+            <div>
               {players.map((p, i) => (
                 <div key={p.id} style={{
-                  display:'flex', gap:10, alignItems:'center', padding:'8px 10px',
-                  borderRadius:8, marginBottom:4,
+                  display:'flex', gap:10, alignItems:'center', padding:'7px 10px',
+                  borderRadius:8, marginBottom:3,
                   background: i===0 ? '#92400e33' : i===1 ? '#37415133' : i===2 ? '#1c191733' : 'transparent',
                 }}>
                   <div style={{ fontSize:15, minWidth:30, textAlign:'center', fontWeight:700, color:'#64748b' }}>
@@ -324,10 +351,11 @@ export default function HostPage() {
 
           <button onClick={nextQuestion} style={{
             padding:'16px 32px', borderRadius:14, border:'none', cursor:'pointer',
-            background:'#3b82f6', color:'#fff', fontSize:16, fontWeight:700,
+            background: answeredCount >= totalPlayers && totalPlayers > 0 ? '#22c55e' : '#3b82f6',
+            color:'#fff', fontSize:16, fontWeight:700,
             minWidth:180, alignSelf:'stretch'
           }}>
-            {answeredCount >= totalPlayers ? '✅ Todos respondieron' : '⏭️ Forzar siguiente'}
+            {answeredCount >= totalPlayers && totalPlayers > 0 ? '✅ Siguiente' : '⏭️ Siguiente'}
             <div style={{ fontSize:12, fontWeight:400, marginTop:4, opacity:0.8 }}>
               {answeredCount}/{totalPlayers} respondieron
             </div>

@@ -58,11 +58,17 @@ create policy "public read answers" on answers for select using (true);
 create policy "public insert answers" on answers for insert with check (true);
 
 -- función para resetear el juego completo
+-- security definer: corre como dueño, salta RLS y permite borrar answers/players
+-- where id is not null: satisface el "safe update mode" que exige WHERE en los DELETE
 create or replace function reset_game()
-returns void as $$
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
 begin
-  delete from answers;
-  delete from players;
+  delete from answers where id is not null;
+  delete from players where id is not null;
   update game_state set
     status = 'lobby',
     current_question = 0,
@@ -70,4 +76,4 @@ begin
     answers_count = 0
   where id = 'game';
 end;
-$$ language plpgsql;
+$$;
