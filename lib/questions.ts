@@ -79,7 +79,7 @@ export const QUESTIONS: Question[] = [
     blockLabel: '🏢 Bloque Empresa',
     type: 'multiple',
     question: '¿Cuántas personas trabajan actualmente en HMM?',
-    options: ['33', '51', '37', '42'],
+    options: ['33', '51', '35', '42'],
     correct: 2,
     timeLimit: 20,
   },
