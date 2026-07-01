@@ -44,11 +44,19 @@ export default function HostPage() {
       })
       .subscribe()
 
+    // polling de respaldo (por si el realtime de answers no está habilitado):
+    // refresca contador de respuestas y puntajes cada 1.5s
+    const poll = setInterval(() => {
+      loadAnswers()
+      loadPlayers()
+    }, 1500)
+
     return () => {
       supabase.removeChannel(gameSub)
       supabase.removeChannel(answersSub)
       supabase.removeChannel(playersSub)
       clearInterval(timerRef.current)
+      clearInterval(poll)
     }
   }, [])
 
